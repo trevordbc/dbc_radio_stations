@@ -134,11 +134,6 @@ class Elementor_Podcast_Player_Widget_Advanced extends \Elementor\Widget_Base {
             }
         }
 
-        wp_localize_script('audio_player_script', 'elementorPodcastData', array(
-            'podcasts' => $data,
-            'userRoles' => $user_roles,
-        ));
-
         // Audio player outside the accordion
         ?>
 <div class="container">
