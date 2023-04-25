@@ -1,0 +1,245 @@
+.container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+}
+
+h1 {
+      font-size: 36px;
+      font-weight: bold;
+      text-align: center;
+}
+
+#audio-player {
+      text-align: center;
+}
+
+audio {
+      display: none;
+}
+
+#controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+}
+
+.control {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin: 0 10px;
+      padding: 10px;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+       background: rgb(255,0,0);
+	background: linear-gradient(128deg, rgba(255,0,0,1) 0%, rgba(223,0,70,1) 47%, rgba(255,160,0,1) 100%); 
+}
+
+.control:hover {
+	  background: linear-gradient(180deg, rgba(255,160,0,1) 100%, rgba(223,0,70,1) 47%, rgba(255,0,0,1) 0%);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.control i {
+      color: white;
+      font-size: 24px;
+}
+
+#scrubber {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+}
+
+    #seekbar {
+      width: 100%;
+      margin: 0 10px;
+    }
+
+    #current-time,
+    #duration {
+      font-size: 14px;
+      margin: 0 10px;
+    }
+
+    #playlist {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .track {
+      padding: 10px;
+    }
+
+    .playlist-item span.title, .playlist-item span.title:hover {
+      font-size: 18px;
+      font-weight: bold;
+      text-decoration: none;
+      color: #FFF;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+.duration, .track:hover .duration {
+	color: #FFF;
+}
+    
+span {
+	font-size: 12px;
+	display: block;
+}
+.accordion-content {
+	flex-wrap: wrap;
+	justify-content: space-between;
+	margin: 0 -10px; /* Add negative margin to offset the padding on .playlist-item */
+}
+.accordion-content.active {
+	display: flex !important;
+}
+.playlist-item {
+  flex-basis: calc(33.33% - 20px); /* Use calc to subtract the margin and padding */
+  padding: 10px;
+  margin-bottom: 20px; /* Add some bottom margin for spacing */
+  min-height: 250px;
+	background-position: center center !important;
+	background-size: cover !important;
+}
+.playlist-item:nth-child(1n) {
+	 background: #d71e26;
+	background-image: url('/wp-content/uploads/2023/04/Red2gnc.png');
+}
+.playlist-item:nth-child(2n) {
+	 background: #a61b21; 
+	background-image: url('/wp-content/uploads/2023/04/MicImage.png');
+}
+.playlist-item:nth-child(3n) {
+	 background: #7f141a; 
+	background-image: url('/wp-content/uploads/2023/04/RadioImage.png');
+}
+.playlist-item .active .currentlyPlaying, .playlist-item .playNow {
+	display: inline-block;
+	color: #FFF;
+	border: 1px solid #FFF;
+	border-radius: 5px;
+	font-size: 12px;
+	text-transform: uppercase;
+	padding: 3px 12px;
+}
+.playlist-item .active .currentlyPlaying::after, .playlist-item .playNow::after {
+	content: ' ';
+	display: block !important;
+	width: 100% !important;
+}
+
+.playlist-item .currentlyPlaying, .playlist-item .active .playNow {
+	display: none;
+}
+.playlist-item .active .currentlyPlaying {
+	animation-name: pulse;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+	
+}
+.audio-pagination button {
+	font-size: 13px;
+	padding: 5px 11px;
+	margin: 5px 3px;
+	background: #171717;
+	border: 0px;
+	border-radius: 5px;
+	color: #FFF;
+}
+#audio-player {
+	background: #EFEFEF;
+	max-width: 600px;
+	margin: 0px auto;
+	padding: 25px;
+	border-radius: 10px;
+}
+@keyframes pulse {
+  0% {
+    transform: scale(.7);
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(.7);
+  }
+}
+
+.elementor-accordion .elementor-accordion-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.elementor-accordion .elementor-accordion-title {
+    order: -1;
+    flex-grow: 1;
+    display: inline-block;
+    width: auto;
+    margin-right: 10px;
+    padding: 10px;
+    border: none;
+    background: none;
+    text-align: left;
+}
+
+.elementor-accordion .elementor-accordion-content {
+    order: 1;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.elementor-accordion .elementor-tab-content {
+    display: none;
+}
+
+.elementor-accordion .elementor-tab-content:first-of-type {
+    display: block;
+}
+
+.elementor-accordion .elementor-accordion-icon {
+    display: none;
+}
+.custom-accordion-titles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-accordion-contents .accordion-content {
+    display: none;
+}
+
+.custom-accordion-contents .accordion-content.active {
+    display: block;
+}
+
+
+/* Desktop */
+@media only screen and (min-width: 1024px) {
+	.track {
+		width: calc(33.33% - 20px);
+		float: left;
+	}
+	.track:nth-child(3n)::after {
+		clear: both;
+	}
+}
+
+/* Tablet */
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+  /* CSS rules for tablet devices */
+}
+
+/* Mobile */
+@media only screen and (max-width: 767px) {
+  /* CSS rules for mobile devices */
+}
