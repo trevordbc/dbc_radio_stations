@@ -134,11 +134,15 @@ class Elementor_Podcast_Player_Widget_Advanced extends \Elementor\Widget_Base {
             }
         }
 
+        wp_localize_script('audio_player_script', 'elementorPodcastData', array(
+            'podcasts' => $data,
+            'userRoles' => $user_roles,
+        ));
+
         // Audio player outside the accordion
         ?>
 <div class="container">
 	<div id="audio-player">
-		<div id="current-title" class="current-title"></div>
 		<audio id="player" data-audio-limit="<?php echo $podcastLimit; ?>"></audio>
 		<div id="controls">
 			<button id="play" class="control"><i class="fas fa-play"></i></button>
@@ -147,7 +151,7 @@ class Elementor_Podcast_Player_Widget_Advanced extends \Elementor\Widget_Base {
 		</div>
 		<div id="seeker">
 			<input type="range" id="seekbar" value="0" step="1" min="0">
-			<div class="current-time" id="current-time"></div>
+			<div id="current-time"></div>
 			<div id="duration"></div>
 		</div>
 	</div>
