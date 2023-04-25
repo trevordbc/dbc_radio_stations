@@ -1,131 +1,138 @@
-jQuery(document).ready(function ($) {
-	if (typeof elementorPodcastData !== "undefined") {
-    const player = document.getElementById('player');
-    const seeker = document.getElementById('seekbar');
-    const currentTimeElement = document.getElementById('current-time');
-    const durationElement = document.getElementById('duration');
-    const podcastTitleElement = document.getElementById('podcast-title');
-    const playingIndicator = document.getElementById('playing-indicator');
-    const pagination = document.getElementById('pagination');
-    let currentPlayingItem = null;
+jQuery(document).ready(function($) {
+    var player = $('#player')[0];
+    var playBtn = $('#play');
+    var pauseBtn = $('#pause').hide();
+    var stopBtn = $('#stop');
+    var seekbar = $('#seekbar');
+    var currentTimeDisplay = $('#current-time');
+    var durationDisplay = $('#duration');
+    var audioLimit = parseInt(player.dataset.audioLimit);
+
+    function formatTime(seconds) {
+        var minutes = Math.floor(seconds / 60);
+        seconds = Math.floor(seconds % 60);
+        return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+    }
+
+    player.addEventListener('timeupdate', function() {
+        currentTimeDisplay.text(formatTime(player.currentTime));
+        durationDisplay.text(formatTime(player.duration));
+        seekbar.val(100 * player.currentTime / player.duration);
+    });
+
+    player.addEventListener('loadedmetadata', function() {
+        durationDisplay.text(formatTime(player.duration));
+    });
+
+    seekbar.on('input', function() {
+        player.currentTime = player.duration * seekbar.val() / 100;
+    });
 
     function resetPlayer() {
         player.pause();
-        player.src = '';
-        seeker.value = 0;
-        currentTimeElement.textContent = '00:00';
-        durationElement.textContent = '00:00';
+        player.currentTime = 0;
+        playBtn.show();
+        pauseBtn.hide();
     }
 
-    function playPodcast(enclosure, title) {
-        resetPlayer();
-        player.src = enclosure;
-        podcastTitleElement.textContent = title;
+    playBtn.on('click', function() {
         player.play();
-    }
+        playBtn.hide();
+        pauseBtn.show();
+    });
 
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        seconds = Math.floor(seconds % 60);
-        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
+    pauseBtn.on('click', function() {
+        player.pause();
+        pauseBtn.hide();
+        playBtn.show();
+    });
 
-    function displayPlaylistItems(podcast) {
-        if (!podcast || !podcast.items || podcast.items.length === 0) {
-            return '';
+    stopBtn.on('click', resetPlayer);
+
+    // Add event listeners for the accordion titles to load the playlist
+    $('body').on('click', '.accordion-title', function () {
+        const index = $(this).data('index');
+        const podcast = elementorPodcastData.podcasts[index];
+
+        if (!podcast) return;
+
+        if (podcast.protectedcontent === 'yes' && !userHasAccess(podcast.allowed_roles)) {
+            $('.accordion-content.accordion-' + index + '-content').html('<p>Access denied. You don\'t have permission to view this content.</p>');
+        } else {
+            let html = '';
+            podcast.items.forEach(item => {
+                html += `
+                    <div class="playlist-item" data-src="${item.enclosure}">
+                        <span class="title">${item.title}</span>
+                    </div>
+                `;
+            });
+
+            $('.accordion-content.accordion-' + index + '-content').html(html);
+
+            // Automatically play the first podcast item when a podcast title is clicked
+            player.src = podcast.items[0].enclosure;
+            player.load();
+            player.play();
+            playBtn.hide();
+            pauseBtn.show();
+
+            // Add event listeners for the playlist items to load the audio source
+            $('.playlist-item').off('click').on('click', function () {
+                const src = $(this).data('src');
+                player.src = src;
+                player.load();
+                player.play();
+                playBtn.hide();
+                pauseBtn.show();
+            });
         }
+    });
 
-        return podcast.items.map((item, index) => {
-            const formattedDuration = formatTime(item.duration);
-            return `<div class="playlist-item" data-src="${item.enclosure}" data-index="${index}">
-                <div class="podcast-title">${item.title}</div>
-                <div class="podcast-duration">${formattedDuration}</div>
-            </div>`;
-        }).join('');
-    }
+    // The modified code for generating the new HTML structure
+    let titlesHtml = '';
+    let contentsHtml = '';
 
     elementorPodcastData.podcasts.forEach((podcast, index) => {
-        const accordionContent = $(`.elementor-accordion .elementor-accordion-item:eq(${index}) .custom-accordion-container`);
-        accordionContent.html(displayPlaylistItems(podcast));
+        titlesHtml += `<div class="accordion-title accordion-${index}" data-index="${index}">${podcast.rssfeedtitle}</div>`;
+
+        let itemListHtml = '';
+        podcast.items.forEach(item => {
+            itemListHtml += `
+                <div class="playlist-item" data-src="${item.enclosure}">
+                    <span class="title">${item.title}</span>
+                </div>
+            `;
+        });
+
+        const contentClass = index === 0 ? 'accordion-content active' : 'accordion-content';
+        contentsHtml += `<div class="${contentClass} accordion-${index}-content">${itemListHtml}</div>`;
     });
 
-    // Play, Pause, and Stop controls
-    $('#play').on('click', function () {
-        player.play();
+    const customAccordionHtml = `
+        <div class="custom-accordion">
+            <div class="custom-accordion-titles">${titlesHtml}</div>
+            <div class="custom-accordion-contents">${contentsHtml}</div>
+        </div>
+    `;
+
+    // Append the custom accordion to a container
+    $('.custom-accordion-container').html(customAccordionHtml);
+
+    // Add event listeners for the accordion titles to toggle the accordion content
+    $('.accordion-title').on('click', function() {
+        const index = $(this).data('index');
+        $('.accordion-content').removeClass('active');
+        $('.accordion-' + index + '-content').addClass('active');
     });
 
-    $('#pause').on('click', function () {
-        player.pause();
-    });
-
-    $('#stop').on('click', function () {
-        resetPlayer();
-    });
-
-    // Seeker and time updates
-    player.addEventListener('timeupdate', function () {
-        seeker.value = player.currentTime / player.duration * 100;
-        currentTimeElement.textContent = formatTime(player.currentTime);
-    });
-
-    seeker.addEventListener('input', function () {
-        player.currentTime = player.duration * (seeker.value / 100);
-    });
-
-    player.addEventListener('loadedmetadata', function () {
-        durationElement.textContent = formatTime(player.duration);
-    });
-
-    // Playlist items click
-    $('.elementor-accordion').on('click', '.playlist-item', function () {
-        if (currentPlayingItem) {
-            currentPlayingItem.removeClass('playing');
-        }
-        currentPlayingItem = $(this);
-        currentPlayingItem.addClass('playing');
-
+    // Add event listeners for the playlist items to load the audio source
+    $('.playlist-item').on('click', function() {
         const src = $(this).data('src');
-        const title = $(this).find('.podcast-title').text();
-        playPodcast(src, title);
+        player.src = src;
+        player.load();
+        player.play();
+        playBtn.hide();
+        pauseBtn.show();
     });
-
-    // Initialize the first podcast
-    const firstAccordion = $('.elementor-accordion-title').first();
-    const firstAccordionSection = firstAccordion.data('section-toggle');
-    const firstAccordionPodcast = elementorPodcastData.podcasts.find(p => p.url === firstAccordion.data('rss-feed'));
-	
-	if (firstAccordionPodcast && firstAccordionPodcast.items.length > 0) {
-        const firstPodcast = firstAccordionPodcast.items[0];
-        podcastTitleElement.textContent = firstPodcast.title;
-        player.src = firstPodcast.enclosure;
-        currentPlayingItem = $(`.elementor-accordion .elementor-accordion-item:eq(0) .playlist-item[data-index="0"]`);
-        currentPlayingItem.addClass('playing');
-    }
-
-    // Automatically move to the next podcast when one ends
-    player.addEventListener('ended', function () {
-        if (!currentPlayingItem) {
-            return;
-        }
-
-        const nextIndex = currentPlayingItem.data('index') + 1;
-        const accordionIndex = $('.elementor-accordion .elementor-accordion-item').index(currentPlayingItem.closest('.elementor-accordion-item'));
-        const nextPlayingItem = $(`.elementor-accordion .elementor-accordion-item:eq(${accordionIndex}) .playlist-item[data-index="${nextIndex}"]`);
-
-        if (nextPlayingItem.length > 0) {
-            currentPlayingItem.removeClass('playing');
-            currentPlayingItem = nextPlayingItem;
-            currentPlayingItem.addClass('playing');
-
-            const src = nextPlayingItem.data('src');
-            const title = nextPlayingItem.find('.podcast-title').text();
-            playPodcast(src, title);
-        } else {
-            resetPlayer();
-        }
-    });
-
-    // Set the first accordion as active
-    firstAccordion.trigger('click');
-	}
 });
