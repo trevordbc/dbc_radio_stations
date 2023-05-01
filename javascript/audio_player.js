@@ -7,6 +7,7 @@ jQuery(document).ready(function($) {
     var currentTimeDisplay = $('#current-time');
     var durationDisplay = $('#duration');
     var audioLimit = parseInt(player.dataset.audioLimit);
+	const currentTitle = $('#currentTitle');
 
     function formatTime(seconds) {
         var minutes = Math.floor(seconds / 60);
@@ -34,6 +35,11 @@ jQuery(document).ready(function($) {
         playBtn.show();
         pauseBtn.hide();
     }
+	function getNextPlaylistItem() {
+		const currentItem = $('.playlist-item[data-src="' + player.src + '"]');
+		const nextItem = currentItem.next('.playlist-item');
+		return nextItem.length > 0 ? nextItem : null;
+	}
 
     playBtn.on('click', function() {
         player.play();
@@ -71,11 +77,11 @@ jQuery(document).ready(function($) {
             $('.accordion-content.accordion-' + index + '-content').html(html);
 
             // Automatically play the first podcast item when a podcast title is clicked
-            player.src = podcast.items[0].enclosure;
-            player.load();
-            player.play();
-            playBtn.hide();
-            pauseBtn.show();
+            //player.src = podcast.items[0].enclosure;
+            //player.load();
+            //player.play();
+            //playBtn.hide();
+            //pauseBtn.show();
 
             // Add event listeners for the playlist items to load the audio source
             $('.playlist-item').off('click').on('click', function () {
@@ -118,6 +124,14 @@ jQuery(document).ready(function($) {
 
     // Append the custom accordion to a container
     $('.custom-accordion-container').html(customAccordionHtml);
+	
+	if ($('.playlist-item.active').length === 0) {
+		const firstSrc = $('.playlist-item').first().data('src');
+		player.src = firstSrc;
+		player.load();
+		playBtn.show(); // Show the play button
+		pauseBtn.hide(); // Hide the pause button
+	}
 
     // Add event listeners for the accordion titles to toggle the accordion content
     $('.accordion-title').on('click', function() {
@@ -135,4 +149,13 @@ jQuery(document).ready(function($) {
         playBtn.hide();
         pauseBtn.show();
     });
+	if (currentTitle.text() === '') {
+	  const firstTitle = $('.playlist-item').first().find('span.title').text();
+	  currentTitle.text(firstTitle);
+	}
+	$('.custom-accordion-container').on('click', '.playlist-item', function() {
+		const updateAllTitles = $(this).find('span.title').text();
+		const currentTitle = $('#currentTitle');
+		currentTitle.text(updateAllTitles);
+	});
 });
