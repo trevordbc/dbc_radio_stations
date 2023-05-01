@@ -8,6 +8,18 @@ jQuery(document).ready(function($) {
     var durationDisplay = $('#duration');
     var audioLimit = parseInt(player.dataset.audioLimit);
 	const currentTitle = $('#currentTitle');
+	
+	function userHasAccess(allowedRoles) {
+		const userRoles = elementorPodcastData.userRoles;
+
+		for (const role of userRoles) {
+			if (allowedRoles.includes(role)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
     function formatTime(seconds) {
         var minutes = Math.floor(seconds / 60);
@@ -57,14 +69,15 @@ jQuery(document).ready(function($) {
 
     // Add event listeners for the accordion titles to load the playlist
     $('body').on('click', '.accordion-title', function () {
-        const index = $(this).data('index');
-        const podcast = elementorPodcastData.podcasts[index];
+		const index = $(this).data('index');
+		const podcast = elementorPodcastData.podcasts[index];
 
-        if (!podcast) return;
+		if (!podcast) return;
 
-        if (podcast.protectedcontent === 'yes' && !userHasAccess(podcast.allowed_roles)) {
-            $('.accordion-content.accordion-' + index + '-content').html('<p>Access denied. You don\'t have permission to view this content.</p>');
-        } else {
+		if (podcast.protectedcontent === 'yes' && !userHasAccess(podcast.allowed_roles)) {
+			$('.accordion-content.accordion-' + index + '-content').html('<p>Access denied. You don\'t have permission to view this content.</p>');
+		} else {
+			
             let html = '';
             podcast.items.forEach(item => {
                 html += `
