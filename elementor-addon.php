@@ -34,6 +34,36 @@ function podcast_enqueue_mediaelement() {
 add_action('wp_enqueue_scripts', 'podcast_enqueue_mediaelement');
 
 
+function sgplayer_html() {
+	echo '<div class="sgplayer-website-footer">';
+	echo '<div class="sgplayer-embed" style="width:100%;height:120px;"></div>';
+	echo '</div>';
+	echo '</div>';
+}
+add_action( 'wp_footer', 'sgplayer_html' );
+
+function sgplayer_enqueue_livestream() {
+	// Get the value of the Call Letters option
+	$call_letters = get_option('dbc_station_call_letters');
+	$frequency = get_option('dbc_station_frequency');
+
+	// Check if the value exists and display it in lowercase
+	$call_letters_lower = !empty($call_letters) ? strtolower($call_letters) : 'NaN';
+	$frequency_lower = !empty($frequency) ? strtolower($frequency) : 'NaN';
+	
+	wp_enqueue_script('sgplayer_script', plugin_dir_url(__FILE__) . '/sgplayer/javascript/player.js', array('jquery'), '', true);
+	wp_enqueue_style('sgplayer_style', plugin_dir_url(__FILE__) . '/sgplayer/css/player.css');
+	
+	wp_localize_script('sgplayer_script', 'sgplayer_data', array(
+        'call_letters_lower' => esc_html($call_letters_lower),
+		'frequency_lower' => esc_html($frequency_lower),
+    ));
+	
+	sgplayer_html();
+}
+add_action('wp_enqueue_scripts', 'sgplayer_enqueue_livestream');
+
+
 function enqueue_load_fa() {
     wp_enqueue_style( 'load-fa', 'https://use.fontawesome.com/releases/v5.5.0/css/all.css' );
 }
