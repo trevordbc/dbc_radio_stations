@@ -143,6 +143,7 @@ class Elementor_Podcast_Player_Widget_Advanced extends \Elementor\Widget_Base {
         ?>
 <div class="container">
 	<div id="audio-player">
+		<div id="currentTitle" style="text-align: center; font-size: 14px;"></div>
 		<audio id="player" data-audio-limit="<?php echo $podcastLimit; ?>"></audio>
 		<div id="controls">
 			<button id="play" class="control"><i class="fas fa-play"></i></button>
